@@ -1,5 +1,6 @@
 
 #include "core.h"
+#include <cmath>
 
 
 // global variables
@@ -8,7 +9,11 @@
 const unsigned int initWidth = 512;
 const unsigned int initHeight = 512;
 
+// Pi
+const float M_PI = 3.14f;
+
 // Function prototypes
+void drawPolygon(float _x, float _y, int _sides, float _radius);
 void renderScene();
 void resizeWindow(GLFWwindow* window, int width, int height);
 void keyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -81,7 +86,22 @@ int main() {
 	return 0;
 }
 
+void drawPolygon(float _x, float _y, int _sides, float _radius)
+{
+	if (_sides < 3) return;
 
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex2f(_x, _y);
+
+	for (int i = 0; i <= _sides; i++)
+	{
+		float angle = (2.0f * M_PI * i) / _sides;
+		float x = _x + cos(angle) * _radius;
+		float y = _y + sin(angle) * _radius;
+		glVertex2f(x, y);
+	}
+	glEnd();
+}
 
 // renderScene - function to render the current scene
 void renderScene()
@@ -90,6 +110,11 @@ void renderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render objects here...
+	drawPolygon(0.0f, 0.0f, 3, 0.5f); // Triangle
+	drawPolygon(-0.5, 0.5f, 4, 0.3f); // Square
+	drawPolygon(0.5f, -0.5f, 6, 0.4f); // Hexagon
+
+	glEnd();
 }
 
 
@@ -97,6 +122,12 @@ void renderScene()
 void resizeWindow(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);		// Draw into entire window
+
+	glMatrixMode(GL_PROJECTION); // Switch to projection view
+	glLoadIdentity(); // Reset previous projection
+	glOrtho(-1, 1, -1, 1, -1, 1); // Sets coord system
+
+	glMatrixMode(GL_MODELVIEW); // Switch back to model view
 }
 
 
