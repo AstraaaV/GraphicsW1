@@ -1,6 +1,7 @@
 
 #include "core.h"
 #include <cmath>
+#include "MyShapes.h"
 
 
 // global variables
@@ -12,8 +13,11 @@ const unsigned int initHeight = 512;
 // Pi
 const float M_PI = 3.14f;
 
-// Function prototypes
-void drawPolygon(float _x, float _y, int _sides, float _radius);
+float tankX = 0.0f, tankY = 0.0f; // Tanks' pos
+float tankOri = 0.0f; // Tank orientation
+float tankSpeed = 0.1f; // Tank movement speed
+float rotSpeed = 5.0f; // Tank rotation speed
+
 void renderScene();
 void resizeWindow(GLFWwindow* window, int width, int height);
 void keyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -86,23 +90,6 @@ int main() {
 	return 0;
 }
 
-void drawPolygon(float _x, float _y, int _sides, float _radius)
-{
-	if (_sides < 3) return;
-
-	glBegin(GL_TRIANGLE_FAN);
-	glVertex2f(_x, _y);
-
-	for (int i = 0; i <= _sides; i++)
-	{
-		float angle = (2.0f * M_PI * i) / _sides;
-		float x = _x + cos(angle) * _radius;
-		float y = _y + sin(angle) * _radius;
-		glVertex2f(x, y);
-	}
-	glEnd();
-}
-
 // renderScene - function to render the current scene
 void renderScene()
 {
@@ -110,9 +97,22 @@ void renderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render objects here...
-	drawPolygon(0.0f, 0.0f, 3, 0.5f); // Triangle
-	drawPolygon(-0.5, 0.5f, 4, 0.3f); // Square
-	drawPolygon(0.5f, -0.5f, 6, 0.4f); // Hexagon
+	//drawPolygon(0.0f, 0.0f, 3, 0.5f); // Triangle
+	//drawPolygon(-0.5, 0.5f, 4, 0.3f); // Square
+	//drawPolygon(0.5f, -0.5f, 6, 0.4f); // Hexagon
+
+	// Render Star
+	//drawStar(0.0f, 0.0f, 0.2f, 0.5f, 5); // Five pointed star
+	
+	// Tank one
+	//drawTank(tankX, tankY, tankOri, 1.0f, 0.0f, 0.0f);
+
+	// Tank two
+	//drawTank(-0.5f, -0.5f, 180.0f, 0.0f, 0.0f, 1.0f);
+
+	//drawBlendedRectangles();
+
+	MyShapes::drawSemiCircleStudio();
 
 	glEnd();
 }
@@ -134,11 +134,26 @@ void resizeWindow(GLFWwindow* window, int width, int height)
 // Function to call to handle keyboard input
 void keyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (action == GLFW_PRESS) {
+	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
 
+		// repeat is for continuous movement
 		// check which key was pressed...
 		switch (key)
 		{
+			case GLFW_KEY_W: // forward movement
+				tankX += tankSpeed * cos(tankOri * M_PI / 180.0f);
+				tankY += tankSpeed * sin(tankOri * M_PI / 180.0f);
+				break;
+			case GLFW_KEY_S: // backward movement
+				tankX -= tankSpeed * cos(tankOri * M_PI / 180.0f);
+				tankY -= tankSpeed * sin(tankOri * M_PI / 180.0f);
+				break;
+			case GLFW_KEY_A: // rotate left
+				tankOri += rotSpeed;
+				break;
+			case GLFW_KEY_D: // rotate right
+				tankOri -= rotSpeed;
+				break;
 			case GLFW_KEY_ESCAPE:
 				glfwSetWindowShouldClose(window, true);
 				break;
