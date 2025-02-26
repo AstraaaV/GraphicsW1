@@ -2,9 +2,19 @@
 #include "core.h"
 #include <cmath>
 #include "MyShapes.h"
-
+#include <random>
+#include "glm/ext/vector_float2.hpp"
+#include "glm/ext/vector_float4.hpp"
 
 // global variables
+std::mt19937 engine;
+std::uniform_real_distribution<float> range(-1.0f, 1.0f);
+std::uniform_real_distribution<float> colourRange(0.0f, 1.0f);
+std::uniform_real_distribution<float> sizeRange(3.0f, 10.0f);
+
+std::vector<glm::vec2> vertexCoords;
+std::vector<glm::vec4> vertexColours;
+std::vector<float> pointSizes;
 
 // Window size
 const unsigned int initWidth = 512;
@@ -71,6 +81,21 @@ int main() {
 	//
 	// 2. Main loop
 	// 
+
+	std::random_device rd;
+	engine = std::mt19937(rd());
+
+	int numPoints = 100;
+	vertexCoords = std::vector<glm::vec2>(numPoints, glm::vec2(0.0f, 0.0f));
+	vertexColours = std::vector<glm::vec4>(numPoints, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	pointSizes = std::vector<float>(numPoints, 5.0f);
+
+	for (int i = 0; i < numPoints; i++)
+	{
+		vertexCoords[i] = glm::vec2(range(engine), range(engine));
+		vertexColours[i] = glm::vec4(colourRange(engine), colourRange(engine), colourRange(engine), 1.0f);
+		pointSizes[i] = sizeRange(engine);
+	}
 	
 
 	// Loop while program is not terminated.
@@ -96,6 +121,14 @@ void renderScene()
 	// Clear the rendering window
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glBegin(GL_POINTS);
+	for (int i = 0; i < vertexCoords.size(); i++)
+	{
+		glPointSize(pointSizes[i]);
+		glColor3f(vertexColours[i].r, vertexColours[i].g, vertexColours[i].b);
+		glVertex2f(vertexCoords[i].x, vertexCoords[i].y);
+	}
+
 	// Render objects here...
 	//drawPolygon(0.0f, 0.0f, 3, 0.5f); // Triangle
 	//drawPolygon(-0.5, 0.5f, 4, 0.3f); // Square
@@ -112,7 +145,7 @@ void renderScene()
 
 	//drawBlendedRectangles();
 
-	MyShapes::drawSemiCircleStudio();
+	//MyShapes::drawSemiCircleStudio();
 
 	glEnd();
 }
